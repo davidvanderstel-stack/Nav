@@ -18,6 +18,10 @@
     --muted: #555;
     --dim: #2a2a2a;
     --red: #ff4747;
+    --map-bg: #0f0f0f;
+    --map-road: #1e1e1e;
+    --map-road-main: #2a2a2a;
+    --map-route: #e8ff47;
   }
 
   body {
@@ -38,8 +42,7 @@
   #start { justify-content: space-between; padding: 48px 32px 40px; }
 
   .brand { display: flex; align-items: center; gap: 10px; }
-  .brand-dot { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.6)} }
+  .brand-dot { width:8px; height:8px; background:var(--accent); border-radius:50%; }
   .brand-name { font-family:'DM Mono',monospace; font-size:13px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; }
 
   .start-center { flex:1; display:flex; flex-direction:column; justify-content:center; gap:8px; }
@@ -60,7 +63,6 @@
   .start-btn { background:var(--accent); color:#0a0a0a; border:none; border-radius:4px; padding:18px; font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; transition:transform .12s,opacity .12s; margin-top:4px; }
   .start-btn:active { transform:scale(.98); opacity:.85; }
   .start-btn:disabled { opacity:.4; cursor:not-allowed; }
-
   .error-msg { font-family:'DM Mono',monospace; font-size:12px; color:var(--red); text-align:center; min-height:18px; letter-spacing:.04em; }
 
   /* ── LOADING ── */
@@ -70,16 +72,43 @@
   .loading-text { font-family:'DM Mono',monospace; font-size:13px; color:var(--muted); letter-spacing:.12em; }
 
   /* ── NAV ── */
-  #nav { justify-content:space-between; }
+  #nav { justify-content:space-between; position: relative; }
 
-  .nav-top { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .nav-top { display:flex; align-items:center; justify-content:space-between; padding:20px 24px 16px; border-bottom:1px solid var(--border); flex-shrink:0; z-index:10; background: var(--bg); }
   .nav-dest { display:flex; flex-direction:column; gap:2px; }
   .nav-dest-label { font-size:10px; color:var(--muted); letter-spacing:.16em; text-transform:uppercase; font-family:'DM Mono',monospace; }
-  .nav-dest-name { font-size:16px; font-weight:600; color:var(--text); max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .nav-dest-name { font-size:16px; font-weight:600; color:var(--text); max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .top-right { display: flex; align-items: center; gap: 10px; }
+
+  .map-toggle-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all .2s;
+    line-height: 1;
+  }
+  .map-toggle-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232,255,71,0.05);
+  }
+
   .stop-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:4px; padding:8px 16px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
   .stop-btn:active { border-color:var(--red); color:var(--red); }
 
-  .nav-main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; position:relative; padding:24px; }
+  /* ── ARROW VIEW ── */
+  #arrow-view {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:0; position:relative; padding:24px;
+    transition: opacity .3s;
+  }
 
   .maneuver-distance { font-family:'DM Mono',monospace; font-size:clamp(48px,16vw,90px); font-weight:300; color:var(--accent); line-height:1; letter-spacing:-.02em; }
   .maneuver-unit { font-family:'DM Mono',monospace; font-size:14px; color:var(--muted); letter-spacing:.12em; margin-top:-4px; margin-bottom:32px; }
@@ -87,31 +116,103 @@
   .arrow-container { position:relative; width:160px; height:160px; display:flex; align-items:center; justify-content:center; }
   .arrow-ring { position:absolute; inset:0; border-radius:50%; border:1px solid var(--dim); }
   .arrow-ring-2 { position:absolute; inset:12px; border-radius:50%; border:1px solid var(--border); }
-  .arrow-svg { width:90px; height:90px; transition:transform .6s cubic-bezier(.34,1.56,.64,1); filter:drop-shadow(0 0 20px rgba(232,255,71,.3)); }
+  .arrow-wrapper { width:90px; height:90px; display:flex; align-items:center; justify-content:center; transition: transform 0.5s cubic-bezier(0.34,1.2,0.64,1); }
+  .arrow-svg { width:90px; height:90px; filter:drop-shadow(0 0 20px rgba(232,255,71,.3)); }
 
   .maneuver-street { font-size:clamp(20px,6vw,28px); font-weight:600; text-align:center; margin-top:28px; line-height:1.2; max-width:280px; }
   .maneuver-instruction { font-size:13px; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:.06em; margin-top:8px; text-align:center; }
+  .compass-hint { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); letter-spacing:.06em; margin-top:8px; }
 
-  .next-preview { background:var(--surface); border-top:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:16px; flex-shrink:0; }
+  /* ── MAP VIEW ── */
+  #map-view {
+    flex:1; display:none; position:relative; overflow:hidden;
+  }
+  #map-view.visible { display:block; }
+
+  #map-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Map overlays */
+  .map-instruction-bar {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    background: rgba(10,10,10,0.92);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .map-instr-arrow {
+    width: 32px; height: 32px; flex-shrink: 0;
+  }
+  .map-instr-text { display: flex; flex-direction: column; gap: 2px; }
+  .map-instr-dist { font-family:'DM Mono',monospace; font-size:18px; font-weight:400; color:var(--accent); }
+  .map-instr-street { font-size:13px; font-weight:600; color:var(--text); }
+
+  .map-zoom-btns {
+    position: absolute;
+    right: 12px; bottom: 20px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .zoom-btn {
+    width: 40px; height: 40px;
+    background: rgba(10,10,10,0.9);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+  }
+  .zoom-btn:active { background: var(--dim); }
+
+  /* North indicator */
+  .north-badge {
+    position: absolute;
+    left: 12px; bottom: 20px;
+    background: rgba(10,10,10,0.9);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .1em;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .north-arrow { color: var(--accent); font-size: 14px; }
+
+  /* ── BOTTOM BAR ── */
+  .nav-bottom { flex-shrink: 0; z-index: 10; background: var(--bg); }
+
+  .next-preview { background:var(--surface); border-top:1px solid var(--border); padding:14px 24px; display:flex; align-items:center; gap:16px; }
   .next-label { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:.16em; text-transform:uppercase; flex-shrink:0; }
   .next-arrow-small { width:18px; height:18px; flex-shrink:0; }
   .next-street { font-size:14px; font-weight:500; color:var(--text); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .next-dist { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); flex-shrink:0; }
 
-  .nav-stats { display:grid; grid-template-columns:1fr 1px 1fr 1px 1fr; padding:20px 24px 32px; border-top:1px solid var(--border); flex-shrink:0; }
+  .nav-stats { display:grid; grid-template-columns:1fr 1px 1fr 1px 1fr; padding:16px 24px 28px; border-top:1px solid var(--border); }
   .stat-divider { background:var(--border); }
   .stat { display:flex; flex-direction:column; align-items:center; gap:4px; }
-  .stat-val { font-family:'DM Mono',monospace; font-size:22px; font-weight:500; color:var(--text); line-height:1; }
+  .stat-val { font-family:'DM Mono',monospace; font-size:20px; font-weight:500; color:var(--text); line-height:1; }
   .stat-val.accent { color:var(--accent); }
   .stat-key { font-size:10px; color:var(--muted); letter-spacing:.14em; text-transform:uppercase; font-family:'DM Mono',monospace; }
 
   .gps-badge { position:absolute; top:12px; right:12px; font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:.08em; display:flex; align-items:center; gap:5px; }
-  .gps-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulse 2s infinite; }
+  .gps-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulsedot 2s infinite; }
+  @keyframes pulsedot { 0%,100%{opacity:1}50%{opacity:.3} }
 
   /* ── ARRIVED ── */
   #arrived { align-items:center; justify-content:center; gap:24px; padding:40px 32px; }
-  .arrived-icon { font-size:72px; animation:arrive .6s cubic-bezier(.34,1.56,.64,1); }
-  @keyframes arrive { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
+  .arrived-icon { font-size:72px; animation:arriveani .6s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes arriveani { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
   .arrived-title { font-size:42px; font-weight:700; letter-spacing:-.02em; text-align:center; }
   .arrived-sub { font-size:14px; color:var(--muted); font-family:'DM Mono',monospace; text-align:center; letter-spacing:.06em; }
   .arrived-btn { background:var(--accent); color:#0a0a0a; border:none; border-radius:4px; padding:16px 40px; font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; margin-top:16px; }
@@ -131,7 +232,7 @@
       <div class="input-label">Vertrek</div>
       <div class="input-row">
         <span class="input-icon">◎</span>
-        <input type="text" id="origin-input" placeholder="Detecteer via GPS…" readonly>
+        <input type="text" id="origin-input" placeholder="Tik ⌖ voor GPS locatie…">
         <button class="gps-btn" onclick="detectGPS()" title="GPS gebruiken">⌖</button>
       </div>
     </div>
@@ -160,38 +261,77 @@
       <div class="nav-dest-label">Naar</div>
       <div class="nav-dest-name" id="nav-dest-name">—</div>
     </div>
-    <button class="stop-btn" onclick="stopNav()">STOP</button>
+    <div class="top-right">
+      <button class="map-toggle-btn" id="map-toggle-btn" onclick="toggleMap()" title="Kaart tonen">⊞</button>
+      <button class="stop-btn" onclick="stopNav()">STOP</button>
+    </div>
   </div>
-  <div class="nav-main">
+
+  <!-- ARROW VIEW -->
+  <div id="arrow-view">
     <div class="gps-badge"><div class="gps-dot"></div><span id="gps-acc">GPS</span></div>
     <div class="maneuver-distance" id="maneuver-dist">—</div>
     <div class="maneuver-unit" id="maneuver-unit">meter</div>
     <div class="arrow-container">
       <div class="arrow-ring"></div>
       <div class="arrow-ring-2"></div>
-      <svg class="arrow-svg" viewBox="0 0 90 90" fill="none">
-        <path id="arrow-path" d="M45 75 L45 20 M45 20 L22 43 M45 20 L68 43"
-              stroke="#e8ff47" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <div class="arrow-wrapper" id="arrow-wrapper">
+        <svg class="arrow-svg" viewBox="0 0 90 90" fill="none">
+          <path id="arrow-path" d="M45 75 L45 20 M45 20 L22 43 M45 20 L68 43"
+                stroke="#e8ff47" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
     </div>
     <div class="maneuver-street" id="maneuver-street">—</div>
     <div class="maneuver-instruction" id="maneuver-instr">—</div>
+    <div class="compass-hint" id="compass-hint"></div>
   </div>
-  <div class="next-preview">
-    <div class="next-label">Dan</div>
-    <svg class="next-arrow-small" viewBox="0 0 24 24" fill="none">
-      <path id="next-arrow-path" d="M12 20V6 M12 6L5 13 M12 6L19 13"
-            stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <div class="next-street" id="next-street">—</div>
-    <div class="next-dist" id="next-dist"></div>
+
+  <!-- MAP VIEW -->
+  <div id="map-view">
+    <canvas id="map-canvas"></canvas>
+
+    <!-- Mini instruction bar on map -->
+    <div class="map-instruction-bar">
+      <svg class="map-instr-arrow" viewBox="0 0 90 90" fill="none">
+        <path id="map-arrow-path" d="M45 75 L45 20 M45 20 L22 43 M45 20 L68 43"
+              stroke="#e8ff47" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="map-instr-text">
+        <div class="map-instr-dist" id="map-instr-dist">—</div>
+        <div class="map-instr-street" id="map-instr-street">—</div>
+      </div>
+    </div>
+
+    <div class="north-badge">
+      <div class="north-arrow">↑</div>
+      <div>N</div>
+    </div>
+
+    <div class="map-zoom-btns">
+      <button class="zoom-btn" onclick="zoomIn()">+</button>
+      <button class="zoom-btn" onclick="zoomOut()">−</button>
+    </div>
   </div>
-  <div class="nav-stats">
-    <div class="stat"><div class="stat-val accent" id="stat-eta">—</div><div class="stat-key">aankomst</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-val" id="stat-time">—</div><div class="stat-key">minuten</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-val" id="stat-dist">—</div><div class="stat-key">km over</div></div>
+
+  <!-- BOTTOM BAR (always visible) -->
+  <div class="nav-bottom">
+    <div class="next-preview">
+      <div class="next-label">Dan</div>
+      <svg class="next-arrow-small" viewBox="0 0 24 24" fill="none">
+        <path id="next-arrow-path" d="M12 20V6 M12 6L5 13 M12 6L19 13"
+              stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="next-street" id="next-street">—</div>
+      <div class="next-dist" id="next-dist"></div>
+    </div>
+    <div class="nav-stats">
+      <div class="stat"><div class="stat-val accent" id="stat-eta">—</div><div class="stat-key">aankomst</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-val" id="stat-time">—</div><div class="stat-key">minuten</div></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><div class="stat-val" id="stat-dist">—</div><div class="stat-key">km over</div></div>
+    </div>
   </div>
 </div>
 
@@ -206,6 +346,7 @@
 <script>
 const ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjVjNzU5OTZkOTFhMzRjMjM5NzIwMGQ4OGYxMjkzOWY4IiwiaCI6Im11cm11cjY0In0=';
 
+// ── State ──
 let userCoords = null;
 let watchId = null;
 let steps = [];
@@ -214,281 +355,549 @@ let totalDuration = 0;
 let totalDistance = 0;
 let routeStartTime = null;
 let stepStartTime = null;
-let lastKnownPos = null;
+let deviceHeading = null;
+let lastHeadingFromGPS = null;
+let routeWaypoints = [];
+let prevRotation = 0;
+let prevGPSCoords = null;
+let mapVisible = false;
 
-// ── Arrow SVG paths ──
+// Map state
+let mapZoom = 17;          // zoom level (tile zoom equivalent, used for scale)
+let mapCanvas, mapCtx;
+let osmTiles = {};         // cache: key -> Image
+let mapAnimFrame = null;
+let destCoords = null;
+
+// ── Arrow definitions ──
 const ARROWS = {
-  straight:      { m: "M45 75 L45 20 M45 20 L22 43 M45 20 L68 43",                       n: "M12 20V6 M12 6L5 13 M12 6L19 13" },
-  right:         { m: "M30 72 Q30 45 58 45 L58 20 M58 20 L35 43 M58 20 L81 43",           n: "M6 18 H16 Q18 10 18 4 M18 4 L11 11 M18 4 L25 11" },
-  'sharp right': { m: "M22 72 Q22 35 60 35 L60 12 M60 12 L37 35 M60 12 L83 35",           n: "M4 20 H14 Q16 8 16 2 M16 2 L9 9 M16 2 L23 9" },
-  left:          { m: "M60 72 Q60 45 32 45 L32 20 M32 20 L9 43 M32 20 L55 43",            n: "M18 18 H8 Q6 10 6 4 M6 4 L13 11 M6 4 L-1 11" },
-  'sharp left':  { m: "M68 72 Q68 35 30 35 L30 12 M30 12 L7 35 M30 12 L53 35",            n: "M20 20 H10 Q8 8 8 2 M8 2 L1 9 M8 2 L15 9" },
-  'slight right':{ m: "M38 75 Q48 48 62 20 M62 20 L40 28 M62 20 L67 44",                  n: "M8 20 Q12 12 18 6 M18 6 L10 8 M18 6 L19 14" },
-  'slight left': { m: "M52 75 Q42 48 28 20 M28 20 L50 28 M28 20 L23 44",                  n: "M16 20 Q12 12 6 6 M6 6 L14 8 M6 6 L5 14" },
-  uturn:         { m: "M30 72 L30 40 Q30 14 55 14 Q76 14 76 40 L76 56 M76 56 L61 43 M76 56 L89 43", n: "M8 20 L8 8 Q8 2 14 2 Q20 2 20 8 L20 14 M20 14 L14 9 M20 14 L26 9" },
-  roundabout:    { m: "M45 62 A20 20 0 1 1 65 45 M65 45 L58 38 M65 45 L72 38",            n: "M12 14 A6 6 0 1 1 18 8 M18 8 L14 5 M18 8 L21 5" },
-  arrive:        { m: "M45 70 L45 30 M30 50 L45 30 L60 50 M25 76 L65 76",                 n: "M12 18 L12 6 M6 14 L12 6 L18 14 M5 20 L19 20" },
+  straight:       { m:"M45 75 L45 20 M45 20 L22 43 M45 20 L68 43",                                     n:"M12 20V6 M12 6L5 13 M12 6L19 13" },
+  right:          { m:"M30 72 Q30 45 58 45 L58 20 M58 20 L35 43 M58 20 L81 43",                         n:"M6 18 H16 Q18 10 18 4 M18 4 L11 11 M18 4 L25 11" },
+  'sharp right':  { m:"M22 72 Q22 35 60 35 L60 12 M60 12 L37 35 M60 12 L83 35",                         n:"M4 20 H14 Q16 8 16 2 M16 2 L9 9 M16 2 L23 9" },
+  left:           { m:"M60 72 Q60 45 32 45 L32 20 M32 20 L9 43 M32 20 L55 43",                          n:"M18 18 H8 Q6 10 6 4 M6 4 L13 11 M6 4 L-1 11" },
+  'sharp left':   { m:"M68 72 Q68 35 30 35 L30 12 M30 12 L7 35 M30 12 L53 35",                          n:"M20 20 H10 Q8 8 8 2 M8 2 L1 9 M8 2 L15 9" },
+  'slight right': { m:"M38 75 Q48 48 62 20 M62 20 L40 28 M62 20 L67 44",                                n:"M8 20 Q12 12 18 6 M18 6 L10 8 M18 6 L19 14" },
+  'slight left':  { m:"M52 75 Q42 48 28 20 M28 20 L50 28 M28 20 L23 44",                                n:"M16 20 Q12 12 6 6 M6 6 L14 8 M6 6 L5 14" },
+  uturn:          { m:"M30 72 L30 40 Q30 14 55 14 Q76 14 76 40 L76 56 M76 56 L61 43 M76 56 L89 43",     n:"M8 20 L8 8 Q8 2 14 2 Q20 2 20 8 L20 14 M20 14 L14 9 M20 14 L26 9" },
+  roundabout:     { m:"M45 62 A20 20 0 1 1 65 45 M65 45 L58 38 M65 45 L72 38",                          n:"M12 14 A6 6 0 1 1 18 8 M18 8 L14 5 M18 8 L21 5" },
+  arrive:         { m:"M45 70 L45 30 M30 50 L45 30 L60 50 M25 76 L65 76",                               n:"M12 18 L12 6 M6 14 L12 6 L18 14 M5 20 L19 20" },
 };
 
-// ORS type → arrow key
 function orsArrow(t) {
-  const map = { 0:'left',1:'right',2:'sharp left',3:'sharp right',4:'slight left',5:'slight right',6:'straight',7:'roundabout',8:'roundabout',9:'uturn',10:'arrive',11:'straight' };
-  return map[t] || 'straight';
+  const map={0:'left',1:'right',2:'sharp left',3:'sharp right',4:'slight left',5:'slight right',6:'straight',7:'roundabout',8:'roundabout',9:'uturn',10:'arrive',11:'straight'};
+  return map[t]||'straight';
 }
-// ORS type → Dutch instruction
 function orsNL(t) {
-  const map = { 0:'linksaf',1:'rechtsaf',2:'scherp linksaf',3:'scherp rechtsaf',4:'licht linksaf',5:'licht rechtsaf',6:'rechtdoor',7:'rotonde oprijden',8:'rotonde verlaten',9:'keren',10:'u bent er',11:'vertrek' };
-  return map[t] || 'rechtdoor';
+  const map={0:'linksaf',1:'rechtsaf',2:'scherp linksaf',3:'scherp rechtsaf',4:'licht linksaf',5:'licht rechtsaf',6:'rechtdoor',7:'rotonde oprijden',8:'rotonde verlaten',9:'keren',10:'u bent er',11:'vertrek'};
+  return map[t]||'rechtdoor';
 }
+function getArrow(key){ return ARROWS[key]||ARROWS.straight; }
 
-function getArrow(key) { return ARROWS[key] || ARROWS.straight; }
-
-// ── GPS helpers ──
-function getPosition(opts) {
-  return new Promise((res, rej) => {
-    if (!navigator.geolocation) return rej(new Error('Geen GPS beschikbaar'));
-    navigator.geolocation.getCurrentPosition(res, rej, opts || { enableHighAccuracy: true, timeout: 12000 });
-  });
-}
-
-async function detectGPS() {
-  const inp = document.getElementById('origin-input');
-  inp.placeholder = 'GPS zoeken…';
-  setError('');
-  try {
-    const pos = await getPosition();
-    userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-    inp.value = `${userCoords.lat.toFixed(5)}, ${userCoords.lng.toFixed(5)}`;
-    // Reverse geocode for friendly name
-    try {
-      const r = await fetch(`https://api.openrouteservice.org/geocode/reverse?api_key=${ORS_KEY}&point.lon=${userCoords.lng}&point.lat=${userCoords.lat}&size=1`);
-      const d = await r.json();
-      if (d.features && d.features.length) inp.value = d.features[0].properties.label;
-    } catch(_) {}
-  } catch(e) {
-    setError('GPS fout: ' + (e.message || 'onbekend'));
-    document.getElementById('origin-input').placeholder = 'GPS niet beschikbaar';
+// ── Map toggle ──
+function toggleMap() {
+  mapVisible = !mapVisible;
+  document.getElementById('arrow-view').style.display = mapVisible ? 'none' : 'flex';
+  document.getElementById('map-view').classList.toggle('visible', mapVisible);
+  document.getElementById('map-toggle-btn').classList.toggle('active', mapVisible);
+  document.getElementById('map-toggle-btn').textContent = mapVisible ? '↑' : '⊞';
+  if (mapVisible) {
+    initMapCanvas();
+    drawMap();
   }
 }
 
-// ── Geocode destination text ──
-async function geocode(query) {
-  const url = `https://api.openrouteservice.org/geocode/search?api_key=${ORS_KEY}&text=${encodeURIComponent(query)}&size=1`;
-  const r = await fetch(url);
-  const d = await r.json();
-  if (!d.features || !d.features.length) throw new Error('Bestemming niet gevonden');
-  const [lng, lat] = d.features[0].geometry.coordinates;
-  return { lat, lng, label: d.features[0].properties.label };
+// ── OSM Tile helpers ──
+// Convert lat/lng to tile x,y at given zoom
+function latLngToTile(lat, lng, z) {
+  const n = Math.pow(2, z);
+  const x = Math.floor((lng + 180) / 360 * n);
+  const latRad = lat * Math.PI / 180;
+  const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1/Math.cos(latRad)) / Math.PI) / 2 * n);
+  return { x, y };
 }
 
-// ── Fetch walking route from ORS ──
-async function fetchRoute(from, to) {
-  const body = {
-    coordinates: [[from.lng, from.lat], [to.lng, to.lat]],
-    instructions: true,
-    language: 'nl',
-    units: 'm'
+// Convert tile x,y to lat/lng (top-left corner)
+function tileToLatLng(x, y, z) {
+  const n = Math.pow(2, z);
+  const lng = x / n * 360 - 180;
+  const latRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n)));
+  const lat = latRad * 180 / Math.PI;
+  return { lat, lng };
+}
+
+// Convert lat/lng to pixel on canvas
+function latLngToPixel(lat, lng, centerLat, centerLng, zoom, canvasW, canvasH) {
+  const TILE_SIZE = 256;
+  const scale = Math.pow(2, zoom) * TILE_SIZE;
+  const centerX = (centerLng + 180) / 360 * scale;
+  const centerLatRad = centerLat * Math.PI / 180;
+  const centerY = (1 - Math.log(Math.tan(centerLatRad) + 1/Math.cos(centerLatRad)) / Math.PI) / 2 * scale;
+
+  const lngRad2 = lng * Math.PI / 180; // unused, use formula below
+  const x2 = (lng + 180) / 360 * scale;
+  const latRad2 = lat * Math.PI / 180;
+  const y2 = (1 - Math.log(Math.tan(latRad2) + 1/Math.cos(latRad2)) / Math.PI) / 2 * scale;
+
+  return {
+    x: canvasW / 2 + (x2 - centerX),
+    y: canvasH / 2 + (y2 - centerY)
   };
-  const r = await fetch('https://api.openrouteservice.org/v2/directions/foot-walking/json', {
-    method: 'POST',
-    headers: { 'Authorization': ORS_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!r.ok) {
-    const err = await r.json().catch(() => ({}));
-    throw new Error(err.error?.message || `ORS fout ${r.status}`);
+}
+
+function getTile(x, y, z) {
+  const key = `${z}/${x}/${y}`;
+  if (osmTiles[key]) return osmTiles[key];
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  // Use multiple tile servers for load balancing
+  const servers = ['a','b','c'];
+  const s = servers[(x + y) % 3];
+  img.src = `https://${s}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
+  img.onload = () => {
+    osmTiles[key] = img;
+    if (mapVisible) drawMap();
+  };
+  img.onerror = () => { osmTiles[key] = 'error'; };
+  osmTiles[key] = null; // loading
+  return null;
+}
+
+function initMapCanvas() {
+  mapCanvas = document.getElementById('map-canvas');
+  mapCtx = mapCanvas.getContext('2d');
+  resizeCanvas();
+}
+
+function resizeCanvas() {
+  if (!mapCanvas) return;
+  const rect = document.getElementById('map-view').getBoundingClientRect();
+  mapCanvas.width = rect.width * window.devicePixelRatio;
+  mapCanvas.height = rect.height * window.devicePixelRatio;
+  mapCanvas.style.width = rect.width + 'px';
+  mapCanvas.style.height = rect.height + 'px';
+  mapCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function drawMap() {
+  if (!mapCtx || !userCoords) return;
+  const W = mapCanvas.width / window.devicePixelRatio;
+  const H = mapCanvas.height / window.devicePixelRatio;
+  const ctx = mapCtx;
+  const z = mapZoom;
+  const center = userCoords;
+
+  ctx.fillStyle = '#0f0f0f';
+  ctx.fillRect(0, 0, W, H);
+
+  const TILE_SIZE = 256;
+
+  // Draw OSM tiles
+  const centerTile = latLngToTile(center.lat, center.lng, z);
+  const centerTileTopLeft = tileToLatLng(centerTile.x, centerTile.y, z);
+  const centerTileTopLeftPx = latLngToPixel(centerTileTopLeft.lat, centerTileTopLeft.lng, center.lat, center.lng, z, W, H);
+
+  const tilesX = Math.ceil(W / TILE_SIZE) + 2;
+  const tilesY = Math.ceil(H / TILE_SIZE) + 2;
+
+  for (let dx = -tilesX; dx <= tilesX; dx++) {
+    for (let dy = -tilesY; dy <= tilesY; dy++) {
+      const tx = centerTile.x + dx;
+      const ty = centerTile.y + dy;
+      const px = centerTileTopLeftPx.x + dx * TILE_SIZE;
+      const py = centerTileTopLeftPx.y + dy * TILE_SIZE;
+
+      if (px + TILE_SIZE < 0 || px > W || py + TILE_SIZE < 0 || py > H) continue;
+
+      const tile = getTile(tx, ty, z);
+      if (tile && tile !== 'error') {
+        // Draw tile with dark overlay to match theme
+        ctx.drawImage(tile, px, py, TILE_SIZE, TILE_SIZE);
+        ctx.fillStyle = 'rgba(10,10,10,0.55)';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+      } else {
+        ctx.fillStyle = '#0f0f0f';
+        ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(px, py, TILE_SIZE, TILE_SIZE);
+      }
+    }
   }
-  const d = await r.json();
-  if (!d.routes || !d.routes.length) throw new Error('Geen route gevonden');
+
+  // Draw route polyline
+  if (routeWaypoints.length > 1) {
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(232,255,71,0.25)';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    routeWaypoints.forEach((wp, i) => {
+      const p = latLngToPixel(wp.lat, wp.lng, center.lat, center.lng, z, W, H);
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+
+    // Bright route line on top
+    ctx.beginPath();
+    ctx.strokeStyle = '#e8ff47';
+    ctx.lineWidth = 3;
+    routeWaypoints.forEach((wp, i) => {
+      const p = latLngToPixel(wp.lat, wp.lng, center.lat, center.lng, z, W, H);
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+  }
+
+  // Draw destination marker
+  if (destCoords) {
+    const dp = latLngToPixel(destCoords.lat, destCoords.lng, center.lat, center.lng, z, W, H);
+    ctx.beginPath();
+    ctx.arc(dp.x, dp.y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#e8ff47';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(dp.x, dp.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fill();
+    // Label
+    ctx.font = '600 11px Space Grotesk, sans-serif';
+    ctx.fillStyle = '#e8ff47';
+    ctx.textAlign = 'center';
+    ctx.fillText('BESTEMMING', dp.x, dp.y - 14);
+  }
+
+  // Draw user position
+  const up = { x: W / 2, y: H / 2 };
+
+  // Accuracy circle
+  ctx.beginPath();
+  ctx.arc(up.x, up.y, 24, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(232,255,71,0.06)';
+  ctx.fill();
+
+  // Heading cone
+  const heading = deviceHeading !== null ? deviceHeading : (lastHeadingFromGPS || 0);
+  const headingRad = (heading - 90) * Math.PI / 180;
+  const coneAngle = Math.PI / 6;
+  ctx.beginPath();
+  ctx.moveTo(up.x, up.y);
+  ctx.arc(up.x, up.y, 40, headingRad - coneAngle, headingRad + coneAngle);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(232,255,71,0.12)';
+  ctx.fill();
+
+  // User dot
+  ctx.beginPath();
+  ctx.arc(up.x, up.y, 10, 0, Math.PI * 2);
+  ctx.fillStyle = '#e8ff47';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(up.x, up.y, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fill();
+
+  // Direction arrow on dot
+  ctx.save();
+  ctx.translate(up.x, up.y);
+  ctx.rotate(heading * Math.PI / 180);
+  ctx.beginPath();
+  ctx.moveTo(0, -14);
+  ctx.lineTo(-5, -6);
+  ctx.lineTo(5, -6);
+  ctx.closePath();
+  ctx.fillStyle = '#e8ff47';
+  ctx.fill();
+  ctx.restore();
+}
+
+function zoomIn()  { mapZoom = Math.min(19, mapZoom + 1); if(mapVisible) { resizeCanvas(); drawMap(); } }
+function zoomOut() { mapZoom = Math.max(13, mapZoom - 1); if(mapVisible) { resizeCanvas(); drawMap(); } }
+
+// ── Compass ──
+function startCompass() {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then(s => { if(s==='granted') listenOrientation(); }).catch(()=>{});
+  } else {
+    listenOrientation();
+  }
+}
+
+function listenOrientation() {
+  window.addEventListener('deviceorientationabsolute', onOrientation, true);
+  window.addEventListener('deviceorientation', onOrientation, true);
+}
+
+function onOrientation(e) {
+  let h = null;
+  if (e.webkitCompassHeading != null) h = e.webkitCompassHeading;
+  else if (e.absolute && e.alpha != null) h = (360 - e.alpha) % 360;
+  else if (e.alpha != null) h = (360 - e.alpha) % 360;
+  if (h !== null) {
+    deviceHeading = h;
+    document.getElementById('compass-hint').textContent = '';
+    applyArrowRotation();
+    if (mapVisible) drawMap();
+  }
+}
+
+function bearing(from, to) {
+  const r = Math.PI/180;
+  const dLng = (to.lng-from.lng)*r;
+  const lat1=from.lat*r, lat2=to.lat*r;
+  const y = Math.sin(dLng)*Math.cos(lat2);
+  const x = Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLng);
+  return ((Math.atan2(y,x)*180/Math.PI)+360)%360;
+}
+
+let prevRot = 0;
+function applyArrowRotation() {
+  if (!userCoords || steps.length===0 || currentStep>=steps.length) return;
+  let routeBearing = null;
+  if (routeWaypoints.length > 1) {
+    let minD=Infinity, closest=0;
+    for(let i=0;i<routeWaypoints.length-1;i++){
+      const d=haversine(userCoords,routeWaypoints[i]);
+      if(d<minD){minD=d;closest=i;}
+    }
+    const nw=routeWaypoints[Math.min(closest+1,routeWaypoints.length-1)];
+    routeBearing=bearing(userCoords,nw);
+  }
+  const heading = deviceHeading!==null ? deviceHeading : (lastHeadingFromGPS||0);
+  if (deviceHeading===null && lastHeadingFromGPS===null) {
+    document.getElementById('compass-hint').textContent='beweeg voor richting';
+    document.getElementById('arrow-wrapper').style.transform='rotate(0deg)';
+    return;
+  }
+  const rb = routeBearing!==null ? routeBearing : heading;
+  let rotation = rb - heading;
+  let delta = rotation - prevRot;
+  while(delta>180) delta-=360;
+  while(delta<-180) delta+=360;
+  rotation = prevRot + delta;
+  prevRot = rotation;
+  document.getElementById('arrow-wrapper').style.transform=`rotate(${rotation}deg)`;
+}
+
+function haversine(a,b){
+  const R=6371000,r=Math.PI/180;
+  const dLat=(b.lat-a.lat)*r, dLng=(b.lng-a.lng)*r;
+  const x=Math.sin(dLat/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function decodePolyline(encoded){
+  let i=0,lat=0,lng=0;
+  const c=[];
+  while(i<encoded.length){
+    let b,s=0,r=0;
+    do{b=encoded.charCodeAt(i++)-63;r|=(b&0x1f)<<s;s+=5;}while(b>=0x20);
+    lat+=(r&1)?~(r>>1):(r>>1);s=0;r=0;
+    do{b=encoded.charCodeAt(i++)-63;r|=(b&0x1f)<<s;s+=5;}while(b>=0x20);
+    lng+=(r&1)?~(r>>1):(r>>1);
+    c.push({lat:lat/1e5,lng:lng/1e5});
+  }
+  return c;
+}
+
+function getPosition(opts){
+  return new Promise((res,rej)=>{
+    if(!navigator.geolocation) return rej(new Error('Geen GPS beschikbaar'));
+    navigator.geolocation.getCurrentPosition(res,rej,opts||{enableHighAccuracy:true,timeout:12000});
+  });
+}
+
+async function detectGPS(){
+  const inp=document.getElementById('origin-input');
+  inp.value=''; inp.placeholder='GPS zoeken…'; setError('');
+  try{
+    const pos=await getPosition();
+    userCoords={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    inp.value=`${userCoords.lat.toFixed(5)}, ${userCoords.lng.toFixed(5)}`;
+    try{
+      const r=await fetch(`https://api.openrouteservice.org/geocode/reverse?api_key=${ORS_KEY}&point.lon=${userCoords.lng}&point.lat=${userCoords.lat}&size=1`);
+      const d=await r.json();
+      if(d.features&&d.features.length) inp.value=d.features[0].properties.label;
+    }catch(_){}
+  }catch(e){
+    setError('GPS fout: '+(e.message||'onbekend'));
+    document.getElementById('origin-input').placeholder='GPS niet beschikbaar';
+  }
+}
+
+async function geocode(query){
+  const r=await fetch(`https://api.openrouteservice.org/geocode/search?api_key=${ORS_KEY}&text=${encodeURIComponent(query)}&size=1`);
+  const d=await r.json();
+  if(!d.features||!d.features.length) throw new Error('Bestemming niet gevonden');
+  const[lng,lat]=d.features[0].geometry.coordinates;
+  return{lat,lng,label:d.features[0].properties.label};
+}
+
+async function fetchRoute(from,to){
+  const body={coordinates:[[from.lng,from.lat],[to.lng,to.lat]],instructions:true,language:'nl',units:'m'};
+  const r=await fetch('https://api.openrouteservice.org/v2/directions/foot-walking/json',{
+    method:'POST',
+    headers:{'Authorization':ORS_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||`ORS fout ${r.status}`);}
+  const d=await r.json();
+  if(!d.routes||!d.routes.length) throw new Error('Geen route gevonden');
   return d.routes[0];
 }
 
-// ── Parse ORS steps into our format ──
-function parseSteps(route) {
-  const seg = route.segments[0];
-  return seg.steps.map((s, i) => {
-    const next = seg.steps[i + 1];
-    return {
-      dist: Math.round(s.distance),
-      duration: s.duration,
-      street: s.name || '—',
-      instr: orsNL(s.type),
-      arrowKey: orsArrow(s.type),
-      nextStreet: next ? (next.name || '—') : '—',
-      nextDist: next ? fmtDist(next.distance) : '',
-    };
+function parseSteps(route){
+  const seg=route.segments[0];
+  return seg.steps.map((s,i)=>{
+    const next=seg.steps[i+1];
+    return{dist:Math.round(s.distance),duration:s.duration,street:s.name||'—',instr:orsNL(s.type),arrowKey:orsArrow(s.type),nextStreet:next?(next.name||'—'):'—',nextDist:next?fmtDist(next.distance):''};
   });
 }
 
-// ── Haversine distance (meters) between two coords ──
-function haversine(a, b) {
-  const R = 6371000, rad = Math.PI / 180;
-  const dLat = (b.lat - a.lat) * rad;
-  const dLng = (b.lng - a.lng) * rad;
-  const x = Math.sin(dLat/2)**2 + Math.cos(a.lat*rad)*Math.cos(b.lat*rad)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
-}
-
-// ── Start navigation ──
-async function startNav() {
-  const destText = document.getElementById('dest-input').value.trim();
-  if (!destText) { setError('Voer een bestemming in'); return; }
+async function startNav(){
+  const destText=document.getElementById('dest-input').value.trim();
+  if(!destText){setError('Voer een bestemming in');return;}
   setError('');
-  document.getElementById('start-btn').disabled = true;
+  document.getElementById('start-btn').disabled=true;
   showScreen('loading');
-
-  try {
-    if (!userCoords) {
+  try{
+    if(!userCoords){
       setLoading('locatie bepalen…');
-      const pos = await getPosition();
-      userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const pos=await getPosition();
+      userCoords={lat:pos.coords.latitude,lng:pos.coords.longitude};
     }
-
     setLoading('bestemming zoeken…');
-    const dest = await geocode(destText);
-
+    const dest=await geocode(destText);
+    destCoords={lat:dest.lat,lng:dest.lng};
     setLoading('route berekenen…');
-    const route = await fetchRoute(userCoords, dest);
-
-    steps = parseSteps(route);
-    totalDuration = route.summary.duration;
-    totalDistance = route.summary.distance;
-    currentStep = 0;
-    routeStartTime = Date.now();
-    stepStartTime = Date.now();
-
-    document.getElementById('nav-dest-name').textContent = dest.label || destText;
-    document.getElementById('arrived-dest').textContent = '// ' + (dest.label || destText).toLowerCase();
-
+    const route=await fetchRoute(userCoords,dest);
+    steps=parseSteps(route);
+    totalDuration=route.summary.duration;
+    totalDistance=route.summary.distance;
+    currentStep=0;
+    routeStartTime=Date.now();
+    stepStartTime=Date.now();
+    prevRot=0;
+    if(route.geometry) routeWaypoints=decodePolyline(route.geometry);
+    document.getElementById('nav-dest-name').textContent=dest.label||destText;
+    document.getElementById('arrived-dest').textContent='// '+(dest.label||destText).toLowerCase();
     showScreen('nav');
     renderStep(0);
     startGPSWatch();
-
-  } catch(e) {
+    startCompass();
+  }catch(e){
     showScreen('start');
-    setError(e.message || 'Fout bij ophalen route');
+    setError(e.message||'Fout bij ophalen route');
   }
-  document.getElementById('start-btn').disabled = false;
+  document.getElementById('start-btn').disabled=false;
 }
 
-// ── Live GPS tracking ──
-function startGPSWatch() {
-  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-  watchId = navigator.geolocation.watchPosition(onPos, onPosErr, {
-    enableHighAccuracy: true, maximumAge: 1500, timeout: 10000
-  });
+function startGPSWatch(){
+  if(watchId!==null) navigator.geolocation.clearWatch(watchId);
+  watchId=navigator.geolocation.watchPosition(onPos,onPosErr,{enableHighAccuracy:true,maximumAge:1500,timeout:10000});
 }
 
-function onPos(pos) {
-  const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-  userCoords = coords;
-  const acc = Math.round(pos.coords.accuracy);
-  document.getElementById('gps-acc').textContent = `±${acc}m`;
-
-  if (currentStep >= steps.length) return;
-
-  // Check if we've passed enough steps based on elapsed time + proximity
+function onPos(pos){
+  const coords={lat:pos.coords.latitude,lng:pos.coords.longitude};
+  document.getElementById('gps-acc').textContent=`±${Math.round(pos.coords.accuracy)}m`;
+  if(prevGPSCoords&&haversine(prevGPSCoords,coords)>3) lastHeadingFromGPS=bearing(prevGPSCoords,coords);
+  if(pos.coords.heading!==null&&!isNaN(pos.coords.heading)) lastHeadingFromGPS=pos.coords.heading;
+  prevGPSCoords=coords;
+  userCoords=coords;
   updateCurrentStep(coords);
+  applyArrowRotation();
+  if(mapVisible) drawMap();
 }
 
-function onPosErr() {
-  document.getElementById('gps-acc').textContent = 'GPS fout';
-}
+function onPosErr(){document.getElementById('gps-acc').textContent='GPS fout';}
 
-function updateCurrentStep(coords) {
-  // Use time-based progression as primary signal,
-  // clamped so we don't skip steps too fast
-  const elapsed = (Date.now() - routeStartTime) / 1000;
-  let acc = 0;
-  let found = false;
-  for (let i = 0; i < steps.length; i++) {
-    acc += steps[i].duration;
-    if (elapsed < acc) {
-      if (i > currentStep) {
-        currentStep = i;
-        stepStartTime = Date.now();
-        renderStep(currentStep);
-      }
-      // Update distance remaining for this step
-      const stepElapsed = (Date.now() - stepStartTime) / 1000;
-      const frac = Math.max(0, 1 - stepElapsed / steps[i].duration);
-      const distLeft = Math.round(steps[i].dist * frac);
+function updateCurrentStep(coords){
+  const elapsed=(Date.now()-routeStartTime)/1000;
+  let acc=0;
+  for(let i=0;i<steps.length;i++){
+    acc+=steps[i].duration;
+    if(elapsed<acc){
+      if(i>currentStep){currentStep=i;stepStartTime=Date.now();renderStep(currentStep);}
+      const stepElapsed=(Date.now()-stepStartTime)/1000;
+      const frac=Math.max(0,1-stepElapsed/steps[i].duration);
+      const distLeft=Math.round(steps[i].dist*frac);
       setDistDisplay(distLeft);
       updateStats();
-      found = true;
-      break;
+      return;
     }
   }
-  if (!found) arrive();
+  arrive();
 }
 
-// ── Render a step ──
-function renderStep(i) {
-  if (i >= steps.length) { arrive(); return; }
-  const s = steps[i];
-  const a = getArrow(s.arrowKey);
-  document.getElementById('arrow-path').setAttribute('d', a.m);
-  document.getElementById('next-arrow-path').setAttribute('d', a.n);
+function renderStep(i){
+  if(i>=steps.length){arrive();return;}
+  const s=steps[i];
+  const a=getArrow(s.arrowKey);
+  document.getElementById('arrow-path').setAttribute('d',a.m);
+  document.getElementById('map-arrow-path').setAttribute('d',a.m);
+  document.getElementById('next-arrow-path').setAttribute('d',a.n);
   setDistDisplay(s.dist);
-  document.getElementById('maneuver-street').textContent = s.street;
-  document.getElementById('maneuver-instr').textContent = s.instr;
-  document.getElementById('next-street').textContent = s.nextStreet;
-  document.getElementById('next-dist').textContent = s.nextDist;
-  stepStartTime = Date.now();
+  document.getElementById('maneuver-street').textContent=s.street;
+  document.getElementById('maneuver-instr').textContent=s.instr;
+  document.getElementById('map-instr-street').textContent=s.street;
+  document.getElementById('next-street').textContent=s.nextStreet;
+  document.getElementById('next-dist').textContent=s.nextDist;
+  stepStartTime=Date.now();
   updateStats();
+  applyArrowRotation();
 }
 
-function setDistDisplay(m) {
-  if (m >= 1000) {
-    document.getElementById('maneuver-dist').textContent = (m / 1000).toFixed(1);
-    document.getElementById('maneuver-unit').textContent = 'km';
-  } else {
-    document.getElementById('maneuver-dist').textContent = m;
-    document.getElementById('maneuver-unit').textContent = 'meter';
-  }
+function setDistDisplay(m){
+  const val=m>=1000?(m/1000).toFixed(1):m;
+  const unit=m>=1000?'km':'meter';
+  document.getElementById('maneuver-dist').textContent=val;
+  document.getElementById('maneuver-unit').textContent=unit;
+  document.getElementById('map-instr-dist').textContent=val+' '+unit;
 }
 
-function updateStats() {
-  const elapsed = (Date.now() - routeStartTime) / 1000;
-  const remaining = Math.max(0, totalDuration - elapsed);
-  const distDone = steps.slice(0, currentStep).reduce((a, s) => a + s.dist, 0);
-  const distLeft = Math.max(0, totalDistance - distDone);
-
-  const eta = new Date(Date.now() + remaining * 1000);
-  document.getElementById('stat-eta').textContent =
-    eta.getHours().toString().padStart(2,'0') + ':' +
-    eta.getMinutes().toString().padStart(2,'0');
-  document.getElementById('stat-time').textContent = Math.max(1, Math.ceil(remaining / 60));
-  document.getElementById('stat-dist').textContent = (distLeft / 1000).toFixed(1);
+function updateStats(){
+  const elapsed=(Date.now()-routeStartTime)/1000;
+  const remaining=Math.max(0,totalDuration-elapsed);
+  const distDone=steps.slice(0,currentStep).reduce((a,s)=>a+s.dist,0);
+  const distLeft=Math.max(0,totalDistance-distDone);
+  const eta=new Date(Date.now()+remaining*1000);
+  document.getElementById('stat-eta').textContent=eta.getHours().toString().padStart(2,'0')+':'+eta.getMinutes().toString().padStart(2,'0');
+  document.getElementById('stat-time').textContent=Math.max(1,Math.ceil(remaining/60));
+  document.getElementById('stat-dist').textContent=(distLeft/1000).toFixed(1);
 }
 
-function fmtDist(m) {
-  if (!m && m !== 0) return '';
-  return m < 1000 ? `over ${Math.round(m)}m` : `over ${(m / 1000).toFixed(1)}km`;
+function fmtDist(m){
+  if(!m&&m!==0)return'';
+  return m<1000?`over ${Math.round(m)}m`:`over ${(m/1000).toFixed(1)}km`;
 }
 
-function arrive() {
-  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+function arrive(){
+  if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;}
+  window.removeEventListener('deviceorientationabsolute',onOrientation,true);
+  window.removeEventListener('deviceorientation',onOrientation,true);
   showScreen('arrived');
 }
 
-function stopNav() {
-  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+function stopNav(){
+  if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;}
+  window.removeEventListener('deviceorientationabsolute',onOrientation,true);
+  window.removeEventListener('deviceorientation',onOrientation,true);
+  mapVisible=false;
+  document.getElementById('arrow-view').style.display='flex';
+  document.getElementById('map-view').classList.remove('visible');
   showScreen('start');
 }
 
-function goHome() { showScreen('start'); }
+function goHome(){showScreen('start');}
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-function setLoading(msg) { document.getElementById('loading-text').textContent = msg; }
-function setError(msg) { document.getElementById('error-msg').textContent = msg; }
+function setLoading(msg){document.getElementById('loading-text').textContent=msg;}
+function setError(msg){document.getElementById('error-msg').textContent=msg;}
 
-// Auto GPS on load
-window.addEventListener('load', () => detectGPS());
+window.addEventListener('resize',()=>{ if(mapVisible){resizeCanvas();drawMap();} });
 </script>
 </body>
 </html>
